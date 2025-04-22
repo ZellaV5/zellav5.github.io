@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Missing Language Checker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f9f9f9;
+      padding: 40px;
+    }
+    textarea {
+      width: 80%;
+      height: 300px;
+      padding: 10px;
+      font-size: 14px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    pre {
+      background-color: #fff;
+      border: 1px solid #ccc;
+      display: inline-block;
+      text-align: left;
+      padding: 15px;
+      max-width: 80%;
+      margin-top: 20px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h2>语言缺失检测工具</h2>
+  <textarea id="dataInput" placeholder="请粘贴语言表格数据"></textarea><br><br>
+  <button onclick="checkMissingLanguages()">检查缺失语言</button>
+
+  <h3>缺失语种结果：</h3>
+  <pre id="result">（点击上方按钮查看结果）</pre>
+
+  <script>
+    const requiredLangs = [
+      'en', 'es', 'pt', 'ru', 'fr', 'de', 'tw',
+      'zh', 'jp', 'id', 'it', 'th', 'vi', 'tr',
+      'pl', 'nl', 'ko'
+    ];
+
+    function checkMissingLanguages() {
+      const rawData = document.getElementById('dataInput').value;
+      const lines = rawData.split('\n');
+      const foundLangs = new Set();
+
+      for (let line of lines) {
+        const match = line.match(/^([a-z]{2})(-[a-z]{2})?/i);
+        if (match) {
+          let langCode = match[1].toLowerCase();
+          if (langCode === 'zh' && line.includes('tw')) {
+            langCode = 'tw'; // 区分繁体
+          } else if (langCode === 'ja') {
+            langCode = 'jp'; // 映射日语为 jp
+          }
+          foundLangs.add(langCode);
+        }
+      }
+
+      const missing = requiredLangs.filter(lang => !foundLangs.has(lang));
+      const resultText = `共缺失 ${missing.length} 种语言：\n\n` + (missing.length > 0 ? missing.join('\n') : '无缺失');
+      document.getElementById('result').textContent = resultText;
+    }
+  </script>
+</body>
+</html>
